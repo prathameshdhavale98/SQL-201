@@ -1,0 +1,93 @@
+1) SELECT *
+FROM Movie movie join Movie_genres genres
+ON(movie.mov_id = genres.mov_id_fk)
+JOIN Generes generes 
+ON (genres.gen_id_fk =generes.gen_id) AND generes.gen_title ='Horror';
+
+
+2)SELECT rev.rev_name as ReviewerName FROM Reviewer rev 
+ JOIN Rating rat ON(rev.rev_id=rat.rev_id_fk) AND rat.rev_star>=8
+
+
+3)SELECT actor.act_id, actor.act_first_name ,
+actor.act_last_name ,
+actor.act_gender 
+FROM Actors actor JOIN Movie_cast movie 
+ON(actor.act_id=movie.act_id_fk) 
+JOIN Movie mov on(movie.mov_id_fk=mov.mov_id)
+AND mov.mov_title = 'Deliverance' ;
+
+
+4)SELECT (direct.dir_first_name + direct.dir_last_name) 
+AS DirectorName FROM Director direct
+WHERE direct.dir_id=(SELECT movie.dir_id_fk FROM 
+Movie_direction movie WHERE movie.mov_id_fk IN(
+SELECT mov.mov_id FROM Movie mov where mov.mov_title ='EyesWideShut'));
+
+5)SELECT movie.mov_title,
+movie.mov_year,
+movie.mov_dt_rel,
+(direct.dir_first_name +  direct.dir_last_name) ,
+(actor.act_first_name + actor.act_last_name)
+FROM Movie movie join Movie_direction mdir
+ON(movie.mov_id=mdir.mov_id_fk)
+JOIN Director direct ON(direct.dir_id =mdir.dir_id_fk)
+JOIN Movie_cast moc ON(moc.mov_id_fk=movie.mov_id)
+JOIN Actors actor ON(moc.act_id_fk=actor.act_id)
+JOIN Rating rat ON(movie.mov_id=rat.mov_id_fk)
+JOIN Reviewer rev ON(rat.rev_id_fk=rev.rev_id)
+AND rev.rev_name='NealWruck';
+
+
+6)SELECT distinct movie.mov_year AS Year from Movie movie 
+WHERE movie.mov_id IN(SELECT rating.mov_id_fk from
+Rating rating where rating.rev_star>4)order by
+movie.mov_year
+
+
+7)SELECT movie.mov_title AS MovieTitle from Movie movie
+where movie.mov_id IN(select rating.mov_id_fk from Rating rating
+where rating.num_o_rating IS null);
+
+
+8)SELECT movie.mov_title AS MovieTitle from Movie movie 
+JOIN Movie_direction movdir ON(movie.mov_id=movdir.mov_id_fk)
+JOIN Director dir ON (movdir.dir_id_fk=dir.dir_id)
+AND dir.dir_first_name='David';
+
+
+9)SELECT actor.act_first_name AS ActorFirstName,actor.act_last_name AS ActorLastName,
+movc.role AS Roles  from Actors actor 
+JOIN Movie_cast movc ON(actor.act_id =movc.act_id_fk)
+JOIN Movie movie ON (movc.mov_id_fk = movie.mov_id)
+AND movie.mov_title='BoogieNights';
+
+
+10)SELECT (actor.act_first_name +' '+ actor.act_last_name) AS  ActorName FROM Actors actor
+WHERE act_id IN(SELECT act_id_fk FROM Movie_cast GROUP BY act_id_fk HAVING COUNT(act_id_fk)>1)
+
+
+Stored Procedure:
+
+CREATE PROC [dbo].[SP_CastActorForMovie]
+@actorId int,
+@movieId int
+AS
+BEGIN 
+DECLARE @actorCount int;
+SELECT @actorCount = count(Movie_cast.act_id_fk) from Movie_cast 
+WHERE Movie_cast.act_id_fk=@actorId AND Movie_cast.mov_id_fk=@movieId;
+IF(@actorCount=0)
+BEGIN
+INSERT INTO Movie_cast VALUES(@actorId,@movieId,' ');
+PRINT('Actor is Casted Sucessfully');
+END
+IF(@actorCount >0)
+BEGIN
+PRINT('Actor is Already Casted with Movie');
+END
+END
+
+CASE 1: When user cast a new a Actor Id againt Movie Id then it will map that actor id with the MovieId and insert that record in Movie_cast;
+CASE 2: When user will update new movie with actor then it will also create new Record into the Movie_cast with that actor id;
+CASE 3: Upadation with same actorid to same movie Id  it will give message 'Actor is Already Casted with Movie';

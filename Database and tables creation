@@ -1,0 +1,74 @@
+CREATE DATABASE MOVIE_DATABASE;
+
+USE MOVIE_DATABASE;
+
+CREATE TABLE movie ---1
+    (
+        mov_id INT NOT NULL PRIMARY KEY,
+        mov_title VARCHAR(50),
+        mov_year INT,
+        mov_time INT,
+        mov_lang VARCHAR(50),
+        mov_dt_rel DATE,
+        mov_rel_country VARCHAR(5)
+    );
+	
+CREATE TABLE actors ---2
+    (
+        act_id INT NOT NULL PRIMARY KEY,
+        act_first_name VARCHAR(20),
+        act_last_name VARCHAR(20),
+        act_gender VARCHAR(1)
+    );
+	
+CREATE TABLE director ---3
+    (
+        dir_id INT NOT NULL PRIMARY KEY,
+        dir_first_name VARCHAR(20),
+        dir_last_name VARCHAR(20),
+        
+    );
+
+CREATE TABLE reviewer --4
+    (
+        rev_id INT NOT NULL PRIMARY KEY,
+        rev_name VARCHAR(30),
+    );
+	
+CREATE TABLE generes --5
+    (
+        gen_id INT NOT NULL PRIMARY KEY,
+        gen_title VARCHAR(20),
+    );
+	
+CREATE TABLE movie_cast --6
+    (
+        act_id_fk INT NOT NULL , 
+        mov_id_fk INT NOT NULL ,
+    );
+	
+CREATE TABLE movie_direction ---7
+    (
+        dir_id_fk INT NOT NULL , 
+        mov_id_fk INT NOT NULL  ,
+        CONSTRAINT director_dir_id_fk FOREIGN KEY(dir_id_fk) REFERENCES director(dir_id),
+        CONSTRAINT movie_mov_id_fk FOREIGN KEY(mov_id_fk) REFERENCES movie(mov_id)
+    );
+	
+CREATE TABLE movie_genres   ---8
+    (
+        gen_id_fk INT NOT NULL , 
+        mov_id_fk INT NOT NULL  ,
+       CONSTRAINT generes_gen_id_fk FOREIGN KEY(gen_id_fk) REFERENCES generes(gen_id),
+       CONSTRAINT movie_mov_id__fk FOREIGN KEY(mov_id_fk) REFERENCES movie(mov_id)
+    );
+	
+CREATE TABLE rating --9
+    (
+        mov_id_fk INT NOT NULL,
+        rev_id_fk INT NOT NULL,
+        rev_star FLOAT,
+        num_o_rating INT,
+        CONSTRAINT movie_mov__id_fk FOREIGN KEY(mov_id_fk) REFERENCES movie(mov_id),
+        CONSTRAINT reviewer_rev_id_fk FOREIGN KEY(rev_id_fk) REFERENCES reviewer(rev_id)
+    );
